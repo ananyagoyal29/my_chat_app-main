@@ -11,7 +11,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
-import 'constant.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,19 +43,19 @@ class _MyHomePageState extends State<MyHomePage> {
     ChatMessage(
       isSender: true,
       text: 'this is a banana',
-      chatMedia: ChatMedia(
-        url:
-            'https://images.pexels.com/photos/7194915/pexels-photo-7194915.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260',
-        mediaType: MediaType.imageMediaType(),
-      ),
+      // chatMedia: ChatMedia(
+      //   url:
+      //       'https://images.pexels.com/photos/7194915/pexels-photo-7194915.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260',
+      //   mediaType: MediaType.imageMediaType(),
+      // ),
     ),
     ChatMessage(
       isSender: false,
-      chatMedia: ChatMedia(
-        url:
-            'https://images.pexels.com/photovar/pexels-photo-7194915.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260',
-        mediaType: MediaType.imageMediaType(),
-      ),
+      // chatMedia: ChatMedia(
+      //   url:
+      //       'https://images.pexels.com/photovar/pexels-photo-7194915.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260',
+      //   mediaType: MediaType.imageMediaType(),
+      // ),
     ),
     ChatMessage(isSender: false, text: 'wow that is cool'),
   ];
@@ -108,14 +107,17 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 Future<String> uploadFile(File file) async {
+  print("rkjgbrwkjgojwrbgjowrgwrofjwrh");
+  // String speech = await convertSpeechtoText(file.path);
+  // print(speech);
   FirebaseStorage storage = FirebaseStorage.instance;
   Reference storageReference =
       storage.ref().child('voice_messages/${file.path}');
 
   TaskSnapshot snapshot = await storageReference.putFile(file);
   String downloadUrl = await snapshot.ref.getDownloadURL();
-  String speech = await convertSpeechtoText(file.path);
-  print (speech);
+  // print(file.path);
+  // print(speech);
   return downloadUrl;
 }
 
@@ -136,19 +138,4 @@ Future<void> saveChatMessage(ChatMessage chatMessage) async {
   CollectionReference chatMessagesCollection = firestore.collection('chats');
 
   await chatMessagesCollection.add(chatMessage.toMap());
-}
-
-Future<String> convertSpeechtoText(String filePath) async {
-  const apiKey = apiSecretKey;
-  var url = Uri.https("api.openai.com", "v1/audio/transcriptions");
-  var request = http.MultipartRequest('POST', url);
-  request.headers.addAll({"Authorization": "Bearer $apiKey"});
-  request.fields["model"] = 'whisper-1';
-  request.fields["language"] = "en";
-  request.files.add(await http.MultipartFile.fromPath('file', filePath));
-  var response = await request.send();
-  var newresponse = await http.Response.fromStream(response);
-  final responseData = json.decode(newresponse.body);
-
-  return responseData['text'];
 }

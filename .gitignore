@@ -29,6 +29,7 @@
 .pub-cache/
 .pub/
 build/
+lib/components/chat_input_field/constant.dart
 
 # Android related
 **/android/**/gradle-wrapper.jar

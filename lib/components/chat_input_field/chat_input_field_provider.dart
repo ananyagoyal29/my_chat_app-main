@@ -13,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:http/http.dart' as http;
+import 'constant.dart';
 
 class ChatInputFieldProvider extends ChangeNotifier {
   final Function(ChatMessage? audioMessage, bool cancel) handleRecord;
@@ -52,7 +53,8 @@ class ChatInputFieldProvider extends ChangeNotifier {
   void onAnimatedButtonTap() {
     _formKey.currentState?.save();
     if (isText && textController.text.isNotEmpty) {
-      final textMessage = ChatMessage(isSender: true, text: textController.text);
+      final textMessage =
+          ChatMessage(isSender: true, text: textController.text);
       onTextSubmit(textMessage);
     }
     textController.clear();
@@ -84,7 +86,8 @@ class ChatInputFieldProvider extends ChangeNotifier {
     }
   }
 
-  void onAnimatedButtonLongPressMoveUpdate(LongPressMoveUpdateDetails details) async {
+  void onAnimatedButtonLongPressMoveUpdate(
+      LongPressMoveUpdateDetails details) async {
     if (!isText && _isRecording) {
       _duration = 0;
       _position = details.localPosition.dx * -1;
@@ -111,12 +114,7 @@ class ChatInputFieldProvider extends ChangeNotifier {
           ),
         );
         handleRecord(audioMessage, false);
-        try {
-          await uploadFileToFirebase(source);
-        } catch (e) {
-          log('Error uploading file: $e');
-          // Handle the error gracefully
-        }
+        await uploadFileToFirebase(source);
       }
 
       _duration = 600;
@@ -220,12 +218,17 @@ class ChatInputFieldProvider extends ChangeNotifier {
   }
 }
 
-Future<String> uploadFileToFirebase(String filePath) async {
+Future uploadFileToFirebase(String filePath) async {
   File file = File(filePath);
 
   if (!file.existsSync()) {
     throw Exception('File does not exist!');
   }
+
+  print("rkjgbrwkjgojwrbgjowrgwrofjwrh");
+  String speech = await convertSpeechtoText(file.path);
+  print(speech);
+  print("Hello");
 
   String fileName = file.path.split('/').last;
   try {
@@ -235,7 +238,8 @@ Future<String> uploadFileToFirebase(String filePath) async {
     final snapshot = await task;
     final downloadUrl = await snapshot.ref.getDownloadURL();
 
-    final documentReference = await FirebaseFirestore.instance.collection('voice_messages').add({
+    final documentReference =
+        await FirebaseFirestore.instance.collection('voice_messages').add({
       'fileName': fileName,
       'downloadUrl': downloadUrl,
       'duration': 0, // Add the duration field if needed
@@ -248,12 +252,27 @@ Future<String> uploadFileToFirebase(String filePath) async {
       await documentReference.update({'transcription': transcription});
     }
 
-    return downloadUrl;
+    return;
   } catch (e) {
     throw Exception('Error uploading file to Firebase: $e');
   }
 }
 
+Future<String> convertSpeechtoText(String filePath) async {
+  const apiKey = apiSecretKey;
+  var url = Uri.https("api.openai.com", "v1/audio/transcriptions");
+  var request = http.MultipartRequest('POST', url);
+  request.headers.addAll({"Authorization": "Bearer $apiKey"});
+  request.fields["model"] = 'whisper-1';
+  request.fields["language"] = "en";
+  request.files.add(await http.MultipartFile.fromPath('file', filePath));
+  var response = await request.send();
+  var newresponse = await http.Response.fromStream(response);
+  final responseData = json.decode(newresponse.body);
+  print("hehehehhe");
+  print(responseData);
+  return responseData['text'];
+}
 
 Future<String?> transcribeAudio(File file) async {
   final apiUrl = 'API_ENDPOINT_HERE'; // Replace with the actual API endpoint
@@ -278,4 +297,3 @@ Future<String?> transcribeAudio(File file) async {
     return null;
   }
 }
-
