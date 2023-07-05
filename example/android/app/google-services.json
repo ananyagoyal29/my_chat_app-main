@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "231224645954",
+    "project_id": "voicetotext-75418",
+    "storage_bucket": "voicetotext-75418.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:231224645954:android:31557cfa02f98a2d8810db",
+        "android_client_info": {
+          "package_name": "com.example.example"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "231224645954-trl6559r6banrlsdcbjilr0cka40nk21.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0n0ISRskUHbKjh6FDHZvfOilxM0CbiFs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "231224645954-trl6559r6banrlsdcbjilr0cka40nk21.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
